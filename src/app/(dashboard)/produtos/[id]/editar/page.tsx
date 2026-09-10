@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { apiFetch } from '@/lib/api';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -11,12 +11,26 @@ interface Categoria {
   nome: string;
 }
 
+interface Produto {
+  id: string;
+  nome: string;
+  sku: string | null;
+  unidade: string;
+  precoCusto: string;
+  precoVenda: string;
+  categoryId: string;
+}
+
 const UNIDADES = ['UNIDADE', 'KG', 'METRO', 'LITRO', 'CAIXA', 'SACO'];
 
-export default function NovoProdutoPage() {
+export default function EditarProdutoPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [erro, setErro] = useState('');
+  const [carregando, setCarregando] = useState(true);
   const [guardando, setGuardando] = useState(false);
 
   const [nome, setNome] = useState('');
@@ -27,13 +41,27 @@ export default function NovoProdutoPage() {
   const [categoryId, setCategoryId] = useState('');
 
   useEffect(() => {
-    apiFetch<Categoria[]>('/categories')
-      .then((cats) => {
+    async function carregar() {
+      try {
+        const [produto, cats] = await Promise.all([
+          apiFetch<Produto>(`/products/${id}`),
+          apiFetch<Categoria[]>('/categories'),
+        ]);
+        setNome(produto.nome);
+        setSku(produto.sku ?? '');
+        setUnidade(produto.unidade);
+        setPrecoCusto(produto.precoCusto);
+        setPrecoVenda(produto.precoVenda);
+        setCategoryId(produto.categoryId);
         setCategorias(cats);
-        if (cats.length > 0) setCategoryId(cats[0].id);
-      })
-      .catch((err) => setErro(err instanceof Error ? err.message : 'Erro ao carregar categorias.'));
-  }, []);
+      } catch (err) {
+        setErro(err instanceof Error ? err.message : 'Erro ao carregar produto.');
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregar();
+  }, [id]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,23 +75,24 @@ export default function NovoProdutoPage() {
     setGuardando(true);
 
     try {
-      await apiFetch('/products', {
-        method: 'POST',
-        body: JSON.stringify({
-        nome: nome.trim(),
-        sku: sku.trim() || undefined,
-        unidade,
-        precoCusto: Number(precoCusto),
-        precoVenda: Number(precoVenda),
-        categoryId,
-    }),
-  });
+      await apiFetch(`/products/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+      nome: nome.trim(),
+      sku: sku.trim() || undefined,
+      unidade,
+      precoCusto: Number(precoCusto),
+      precoVenda: Number(precoVenda),
+       }),
+    });
       router.push('/produtos');
     } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Erro ao criar produto.');
+      setErro(err instanceof Error ? err.message : 'Erro ao atualizar produto.');
       setGuardando(false);
     }
   }
+
+  if (carregando) return <p className="text-gray-500">A carregar...</p>;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -71,7 +100,7 @@ export default function NovoProdutoPage() {
         <Link href="/produtos" className="p-1.5 rounded hover:bg-slate-200 text-gray-500">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">Novo Produto</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Editar Produto</h1>
       </div>
 
       {erro && (
@@ -86,7 +115,7 @@ export default function NovoProdutoPage() {
             required
             value={nome}
             onChange={(e) => setNome(e.target.value)}
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
@@ -96,7 +125,7 @@ export default function NovoProdutoPage() {
             type="text"
             value={sku}
             onChange={(e) => setSku(e.target.value)}
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
@@ -106,7 +135,7 @@ export default function NovoProdutoPage() {
             <select
               value={unidade}
               onChange={(e) => setUnidade(e.target.value)}
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               {UNIDADES.map((u) => (
                 <option key={u} value={u}>{u}</option>
@@ -115,18 +144,17 @@ export default function NovoProdutoPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">Categoria *</label>
+          <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">Categoria</label>
             <select
-              required
+              disabled
               value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-gray-100 cursor-not-allowed"
             >
-              {categorias.length === 0 && <option value="">Sem categorias</option>}
               {categorias.map((c) => (
                 <option key={c.id} value={c.id}>{c.nome}</option>
               ))}
             </select>
+            <p className="text-xs text-gray-400 mt-1">A categoria não pode ser alterada nesta versão.</p>
           </div>
         </div>
 
@@ -140,7 +168,7 @@ export default function NovoProdutoPage() {
               required
               value={precoCusto}
               onChange={(e) => setPrecoCusto(e.target.value)}
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -153,7 +181,7 @@ export default function NovoProdutoPage() {
               required
               value={precoVenda}
               onChange={(e) => setPrecoVenda(e.target.value)}
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
         </div>
@@ -161,17 +189,17 @@ export default function NovoProdutoPage() {
         <div className="flex justify-end gap-3 pt-2">
           <Link
             href="/produtos"
-            className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-slate-100 rounded-lg transition"
+            className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-slate-100 rounded-lg transition cursor-pointer"
           >
             Cancelar
           </Link>
-        <button
-          type="submit"
-          disabled={guardando}
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition disabled:opacity-50 cursor-pointer"
-        >
-          {guardando ? 'A guardar...' : 'Guardar Produto'}
-        </button>
+          <button
+            type="submit"
+            disabled={guardando}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition disabled:opacity-50 cursor-pointer"
+          >
+            {guardando ? 'A guardar...' : 'Guardar Alterações'}
+          </button>
         </div>
       </form>
     </div>
