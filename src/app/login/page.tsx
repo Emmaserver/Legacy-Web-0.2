@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/api';
+import { Boxes } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@legacy.com');
@@ -35,11 +36,22 @@ export default function LoginPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 space-y-6">
+return (
+  <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 flex items-center justify-center p-4">
+    <div className="max-w-md w-full space-y-6">
+      <div className="text-center space-y-3">
+        <div className="w-14 h-14 mx-auto rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-900/50">
+          <Boxes className="w-7 h-7 text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Gestão &amp; Vendas</h1>
+          <p className="text-sm text-slate-400 mt-1">Plataforma Legacy</p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-2xl p-8 space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-slate-900">Projeto Legacy</h1>
+          <h2 className="text-lg font-semibold text-slate-900">Iniciar Sessão</h2>
           <p className="text-sm text-gray-500 mt-1">Introduza os seus dados para aceder ao sistema</p>
         </div>
 
@@ -57,7 +69,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -68,19 +80,20 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
           <button
             type="submit"
             disabled={carregando}
-            className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm transition shadow disabled:opacity-50"
+            className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm transition shadow disabled:opacity-50 cursor-pointer"
           >
             {carregando ? 'A iniciar sessão...' : 'Entrar no Sistema'}
           </button>
         </form>
       </div>
     </div>
-  );
+  </div>
+);
 }
