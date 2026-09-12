@@ -16,6 +16,14 @@ interface Produto {
   category?: { nome: string } | null;
 }
 
+interface RespostaPaginada<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 function formatKz(valor: string | number) {
   return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(Number(valor));
 }
@@ -28,8 +36,8 @@ export default function ProdutosPage() {
   async function carregar() {
     try {
       setCarregando(true);
-      const resultado = await apiFetch<Produto[]>('/products');
-      setProdutos(resultado);
+      const resultado = await apiFetch<RespostaPaginada<Produto>>('/products');
+      setProdutos(resultado.data);
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao carregar produtos.');
     } finally {
