@@ -71,13 +71,13 @@ export default function ClientesPage() {
       await apiFetch('/clients', {
         method: 'POST',
         body: JSON.stringify({
-          nome,
-          telefone,
-          documento: documento || undefined,
-          tipo,
-          permiteFiado,
-        }),
-      });
+        nome: nome.trim(),
+        telefone: telefone.trim(),
+        documento: documento.trim() || undefined,
+        tipo,
+        permiteFiado,
+     }),
+    });
       setModalAberto(false);
       carregar();
     } catch (err) {

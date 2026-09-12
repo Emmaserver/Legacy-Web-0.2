@@ -58,7 +58,7 @@ export default function CategoriasPage() {
     try {
       await apiFetch('/categories', {
         method: 'POST',
-        body: JSON.stringify({ nome: nomeNovo }),
+        body: JSON.stringify({ nome: nomeNovo.trim() }),
       });
       setModalAberto(false);
       carregar();
