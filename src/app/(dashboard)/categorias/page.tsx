@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, apiFetchPaginated } from '@/lib/api';
 import { Plus, Ban } from 'lucide-react';
 
 interface Categoria {
@@ -23,7 +23,7 @@ export default function CategoriasPage() {
   async function carregar() {
     try {
       setCarregando(true);
-      const resultado = await apiFetch<Categoria[]>('/categories');
+      const resultado = await apiFetchPaginated<Categoria>('/categories');
       setCategorias(resultado);
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao carregar categorias.');

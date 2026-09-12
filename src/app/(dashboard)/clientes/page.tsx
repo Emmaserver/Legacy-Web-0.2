@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, apiFetchPaginated } from '@/lib/api';
 import { Plus, Ban } from 'lucide-react';
 
 interface Cliente {
@@ -31,7 +31,7 @@ export default function ClientesPage() {
   async function carregar() {
     try {
       setCarregando(true);
-      const resultado = await apiFetch<Cliente[]>('/clients');
+      const resultado = await apiFetchPaginated<Cliente>('/clients');
       setClientes(resultado);
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao carregar clientes.');

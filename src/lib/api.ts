@@ -30,3 +30,15 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
 
   return response.json();
 }
+interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export async function apiFetchPaginated<T>(endpoint: string, options: RequestInit = {}): Promise<T[]> {
+  const resultado = await apiFetch<PaginatedResponse<T>>(endpoint, options);
+  return resultado.data;
+}

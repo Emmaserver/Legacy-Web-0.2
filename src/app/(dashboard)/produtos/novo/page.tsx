@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, apiFetchPaginated } from '@/lib/api';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -27,7 +27,7 @@ export default function NovoProdutoPage() {
   const [categoryId, setCategoryId] = useState('');
 
   useEffect(() => {
-    apiFetch<Categoria[]>('/categories')
+    apiFetchPaginated<Categoria>('/categories')
       .then((cats) => {
         setCategorias(cats);
         if (cats.length > 0) setCategoryId(cats[0].id);

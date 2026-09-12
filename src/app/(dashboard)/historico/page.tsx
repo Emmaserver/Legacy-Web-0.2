@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, apiFetchPaginated } from '@/lib/api';
 import { Wallet, XCircle } from 'lucide-react';
 
 interface Venda {
@@ -42,7 +42,7 @@ export default function HistoricoPage() {
   async function carregar() {
     try {
       setCarregando(true);
-      const resultado = await apiFetch<Venda[]>('/sales');
+      const resultado = await apiFetchPaginated<Venda>('/sales');
       setVendas(resultado);
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao carregar histórico.');

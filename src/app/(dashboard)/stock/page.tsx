@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, apiFetchPaginated } from '@/lib/api';
 import { PackagePlus } from 'lucide-react';
 
 interface Produto {
@@ -25,7 +25,8 @@ export default function StockPage() {
   async function carregar() {
     try {
       setCarregando(true);
-      const resultado = await apiFetch<Produto[]>('/products');
+      
+      const resultado = await apiFetchPaginated<Produto>('/products');
       setProdutos(resultado);
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao carregar produtos.');

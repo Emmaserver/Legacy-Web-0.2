@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, apiFetchPaginated } from '@/lib/api';
 import { Trash2, ShoppingCart } from 'lucide-react';
 
 interface Produto {
@@ -50,8 +50,8 @@ export default function PosPage() {
     async function carregar() {
       try {
         const [prods, clis] = await Promise.all([
-          apiFetch<Produto[]>('/products'),
-          apiFetch<Cliente[]>('/clients'),
+          apiFetchPaginated<Produto>('/products'),
+          apiFetchPaginated<Cliente>('/clients'),
         ]);
         setProdutos(prods.filter((p) => p.estado === 'ATIVO'));
         setClientes(clis.filter((c) => c.estado === 'ATIVO'));
@@ -138,7 +138,7 @@ function adicionarAoCarrinho() {
       setClienteId('');
       setValorPago('');
       // Atualiza stock local para refletir a venda
-      const prods = await apiFetch<Produto[]>('/products');
+      const prods = await apiFetchPaginated<Produto>('/products');
       setProdutos(prods.filter((p) => p.estado === 'ATIVO'));
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao registar venda.');

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { apiFetch } from '@/lib/api';
+import { apiFetch,apiFetchPaginated } from '@/lib/api';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -45,7 +45,7 @@ export default function EditarProdutoPage() {
       try {
         const [produto, cats] = await Promise.all([
           apiFetch<Produto>(`/products/${id}`),
-          apiFetch<Categoria[]>('/categories'),
+          apiFetchPaginated<Categoria>('/categories'),
         ]);
         setNome(produto.nome);
         setSku(produto.sku ?? '');
