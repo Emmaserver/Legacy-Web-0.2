@@ -4,6 +4,14 @@ import { useEffect, useState } from 'react';
 import { apiFetch, apiFetchPaginated } from '@/lib/api';
 import { Plus, Ban } from 'lucide-react';
 
+interface RespostaPaginada<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 interface Categoria {
   id: string;
   nome: string;
@@ -23,8 +31,8 @@ export default function CategoriasPage() {
   async function carregar() {
     try {
       setCarregando(true);
-      const resultado = await apiFetchPaginated<Categoria>('/categories');
-      setCategorias(resultado);
+      const resultado = await apiFetch<RespostaPaginada<Categoria>>('/categories');
+      setCategorias(resultado.data);
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao carregar categorias.');
     } finally {

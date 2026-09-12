@@ -4,6 +4,14 @@ import { useEffect, useState } from 'react';
 import { apiFetch, apiFetchPaginated } from '@/lib/api';
 import { Wallet, XCircle } from 'lucide-react';
 
+interface RespostaPaginada<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 interface Venda {
   id: string;
   estado: 'ATIVA' | 'CANCELADA';
@@ -42,8 +50,8 @@ export default function HistoricoPage() {
   async function carregar() {
     try {
       setCarregando(true);
-      const resultado = await apiFetchPaginated<Venda>('/sales');
-      setVendas(resultado);
+      const resultado = await apiFetch<RespostaPaginada<Venda>>('/sales');
+      setVendas(resultado.data);
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao carregar histórico.');
     } finally {

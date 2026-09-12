@@ -4,6 +4,14 @@ import { useEffect, useState } from 'react';
 import { apiFetch, apiFetchPaginated } from '@/lib/api';
 import { Plus, Ban } from 'lucide-react';
 
+interface RespostaPaginada<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 interface Cliente {
   id: string;
   nome: string;
@@ -31,8 +39,8 @@ export default function ClientesPage() {
   async function carregar() {
     try {
       setCarregando(true);
-      const resultado = await apiFetchPaginated<Cliente>('/clients');
-      setClientes(resultado);
+      const resultado = await apiFetch<RespostaPaginada<Cliente>>('/clients');
+      setClientes(resultado.data);
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao carregar clientes.');
     } finally {

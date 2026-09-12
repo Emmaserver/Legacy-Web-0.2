@@ -4,6 +4,14 @@ import { useEffect, useState } from 'react';
 import { apiFetch, apiFetchPaginated } from '@/lib/api';
 import { PackagePlus } from 'lucide-react';
 
+interface RespostaPaginada<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 interface Produto {
   id: string;
   nome: string;
@@ -26,8 +34,8 @@ export default function StockPage() {
     try {
       setCarregando(true);
       
-      const resultado = await apiFetchPaginated<Produto>('/products');
-      setProdutos(resultado);
+      const resultado = await apiFetch<RespostaPaginada<Produto>>('/products');
+      setProdutos(resultado.data);
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro ao carregar produtos.');
     } finally {

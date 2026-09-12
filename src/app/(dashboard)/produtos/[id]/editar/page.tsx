@@ -6,6 +6,14 @@ import { apiFetch,apiFetchPaginated } from '@/lib/api';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+interface RespostaPaginada<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 interface Categoria {
   id: string;
   nome: string;
@@ -43,9 +51,9 @@ export default function EditarProdutoPage() {
   useEffect(() => {
     async function carregar() {
       try {
-        const [produto, cats] = await Promise.all([
-          apiFetch<Produto>(`/products/${id}`),
-          apiFetchPaginated<Categoria>('/categories'),
+        const [produto, catsResultado] = await Promise.all([
+        apiFetch<Produto>(`/products/${id}`),
+        apiFetch<RespostaPaginada<Categoria>>('/categories'),
         ]);
         setNome(produto.nome);
         setSku(produto.sku ?? '');
@@ -53,7 +61,7 @@ export default function EditarProdutoPage() {
         setPrecoCusto(produto.precoCusto);
         setPrecoVenda(produto.precoVenda);
         setCategoryId(produto.categoryId);
-        setCategorias(cats);
+        setCategorias(catsResultado.data);
       } catch (err) {
         setErro(err instanceof Error ? err.message : 'Erro ao carregar produto.');
       } finally {

@@ -6,6 +6,14 @@ import { apiFetch, apiFetchPaginated } from '@/lib/api';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+interface RespostaPaginada<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 interface Categoria {
   id: string;
   nome: string;
@@ -26,14 +34,14 @@ export default function NovoProdutoPage() {
   const [precoVenda, setPrecoVenda] = useState('');
   const [categoryId, setCategoryId] = useState('');
 
-  useEffect(() => {
-    apiFetchPaginated<Categoria>('/categories')
-      .then((cats) => {
-        setCategorias(cats);
-        if (cats.length > 0) setCategoryId(cats[0].id);
-      })
-      .catch((err) => setErro(err instanceof Error ? err.message : 'Erro ao carregar categorias.'));
-  }, []);
+useEffect(() => {
+  apiFetch<RespostaPaginada<Categoria>>('/categories')
+    .then((resultado) => {
+      setCategorias(resultado.data);
+      if (resultado.data.length > 0) setCategoryId(resultado.data[0].id);
+    })
+    .catch((err) => setErro(err instanceof Error ? err.message : 'Erro ao carregar categorias.'));
+}, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
