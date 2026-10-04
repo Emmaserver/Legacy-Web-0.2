@@ -1,22 +1,39 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  Package, 
-  Tags, 
-  ArrowLeftRight, 
-  Users, 
-  ShoppingCart, 
-  History, 
-  LogOut, 
-  Boxes 
+import {
+  LayoutDashboard,
+  Package,
+  Tags,
+  ArrowLeftRight,
+  Users,
+  ShoppingCart,
+  History,
+  LogOut,
+  Boxes,
+  ShieldCheck,
 } from 'lucide-react';
+
+interface UsuarioLogado {
+  id: string;
+  nome: string;
+  email: string;
+  papel: 'ADMINISTRADOR' | 'GERENTE';
+}
 
 export default function Topbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
+
+  useEffect(() => {
+    const dados = localStorage.getItem('user');
+    if (dados) {
+      setUsuario(JSON.parse(dados));
+    }
+  }, []);
 
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -26,10 +43,14 @@ export default function Topbar() {
     { name: 'Clientes', href: '/clientes', icon: Users },
     { name: 'POS', href: '/pos', icon: ShoppingCart },
     { name: 'Histórico', href: '/historico', icon: History },
+    ...(usuario?.papel === 'ADMINISTRADOR'
+      ? [{ name: 'Utilizadores', href: '/utilizadores', icon: ShieldCheck }]
+      : []),
   ];
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     router.push('/login');
   };
 
@@ -37,8 +58,7 @@ export default function Topbar() {
     <header className="bg-slate-900 text-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          
-          {/* Logo */}
+
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow">
               <Boxes className="w-6 h-6" />
@@ -49,7 +69,6 @@ export default function Topbar() {
             </div>
           </div>
 
-          {/* Navegação Horizontal */}
           <nav className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -71,10 +90,11 @@ export default function Topbar() {
             })}
           </nav>
 
-          {/* Utilizador & Logout */}
           <div className="flex items-center gap-3 border-l border-slate-800 pl-4">
             <div className="text-right hidden sm:block">
-              <span className="text-xs font-semibold block text-white">Operador</span>
+              <span className="text-xs font-semibold block text-white">
+                {usuario?.nome ?? 'Operador'}
+              </span>
               <span className="text-[10px] text-emerald-400 font-medium">&bull; Ligado</span>
             </div>
             <button

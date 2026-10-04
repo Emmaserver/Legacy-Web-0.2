@@ -18,13 +18,21 @@ export default function LoginPage() {
     setCarregando(true);
 
     try {
-      const data = await apiFetch<{ accessToken: string }>('/auth/login', {
+
+            const data = await apiFetch<{
+        accessToken: string;
+        user: { id: string; nome: string; email: string; papel: string };
+      }>('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });
 
       localStorage.setItem('token', data.accessToken);
+      localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/dashboard');
+
+
+
     } catch (err: unknown) {
       if (err instanceof Error) {
         setErro(err.message || 'Falha ao autenticar. Verifique as credenciais.');
